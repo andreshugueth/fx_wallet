@@ -3,6 +3,7 @@ from app.api import app
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.infrastructure.models.base import Base
+from app.infrastructure.database.fx_database import get_db_session
 
 TEST_DB_URL = "postgresql+asyncpg://test_user:test_password@localhost:5433/test_db"
 
@@ -30,7 +31,19 @@ async def session(setup_database):
 
 
 @pytest.fixture(scope="session")
-async def test_app():
+async def test_app(session):
+
+    async def override_get_db_session():
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
+
+    app.dependency_overrides[get_db_session] = override_get_db_session
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://localhost"
     ) as test_client:
