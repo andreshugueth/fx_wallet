@@ -24,3 +24,8 @@ class WalletCreate(BaseModel):
     user_id: int
     currency: Currency
     balance: Decimal = Decimal("0.0")
+
+
+class WalletUpdate(BaseModel):
+    amount: Decimal
+    currency: Currency
