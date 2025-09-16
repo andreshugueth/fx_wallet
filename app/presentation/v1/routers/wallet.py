@@ -54,3 +54,31 @@ async def fund_wallet(
         await session.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
+
+
+@router.post("/{user_id}/withdraw", status_code=status.HTTP_200_OK)
+async def withdraw_from_wallet(
+    user_id: int,
+    wallet_request: WalletUpdate,
+    session: Annotated[AsyncSession, Depends(get_db_session)]
+):
+    """
+    Withdraw from an existing wallet.
+    """
+    if wallet_request.amount <= 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Amount must be greater than zero")
+    try:
+        wallet = await get_entity_by_filter(session, Wallet, user_id=user_id, currency=wallet_request.currency)
+        if not wallet:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wallet not found")
+        if wallet.balance < wallet_request.amount:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficient funds")
+
+        wallet.balance -= wallet_request.amount
+        await session.commit()
+        return wallet
+    except HTTPException:
+        raise
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
