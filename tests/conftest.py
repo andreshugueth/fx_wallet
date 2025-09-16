@@ -53,3 +53,15 @@ async def test_app(session):
 @pytest.fixture(scope="session")
 def anyio_backend():
     return "asyncio"
+
+
+
+@pytest.fixture(scope="session")
+async def create_test_user(test_app):
+    user_data = {
+        "name": "Test User",
+        "username": "testuser"
+    }
+    response = await test_app.post("/v1/users/", json=user_data)
+    assert response.status_code == 201
+    return response.json()
