@@ -7,6 +7,8 @@ from contextlib import asynccontextmanager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.infrastructure.models import user
+    from app.infrastructure.models import wallet
+    from app.infrastructure.models import fx_rate
     # Startup: create tables
     import logging
     logging.basicConfig(level=logging.INFO)
