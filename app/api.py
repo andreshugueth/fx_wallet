@@ -4,7 +4,7 @@ from app.infrastructure.database.fx_database import engine
 from contextlib import asynccontextmanager
 
 
-from app.presentation.v1.routers import user
+from app.presentation.v1.routers import user, wallet
 
 
 @asynccontextmanager
@@ -30,6 +30,7 @@ app = FastAPI(
 
 
 app.include_router(user.router)
+app.include_router(wallet.router)
 
 @app.get("/ping/", tags=["Health Check"])
 async def ping():

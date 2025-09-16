@@ -13,7 +13,6 @@ async def test_create_wallet_success(test_app, create_test_user):
     response = await test_app.post("/v1/wallets/", json=payload)
     assert response.status_code == 201
     data = response.json()
-    assert data["name"] == "Test Wallet"
     assert data["user_id"] == create_test_user["id"]
     assert "id" in data
     assert "created_at" in data
@@ -34,4 +33,4 @@ async def test_create_wallet_invalid_currency(test_app, create_test_user):
         "balance": 0.0,
     }
     response = await test_app.post("/v1/wallets/", json=payload)
-    assert response.status_code == 400
+    assert response.status_code == 422

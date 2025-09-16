@@ -15,4 +15,4 @@ class FXRate(Base):
     from_currency: Mapped[Currency] = mapped_column(nullable=False)
     to_currency: Mapped[Currency] = mapped_column(nullable=False)
     rate: Mapped[Decimal] = mapped_column(nullable=False)
-    last_updated: Mapped[datetime] = mapped_column(default=datetime.now(timezone.utc), nullable=False)
+    last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
