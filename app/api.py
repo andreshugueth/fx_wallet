@@ -4,6 +4,9 @@ from app.infrastructure.database.fx_database import engine
 from contextlib import asynccontextmanager
 
 
+from app.presentation.v1.routers import user
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from app.infrastructure.models import user
@@ -25,6 +28,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+app.include_router(user.router)
 
 @app.get("/ping/", tags=["Health Check"])
 async def ping():
