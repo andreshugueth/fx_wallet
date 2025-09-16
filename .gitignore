@@ -5,3 +5,5 @@ env/
 venv/
 ENV/
 .venv/
+secrets.env
+.DS_Store
