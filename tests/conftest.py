@@ -65,3 +65,16 @@ async def create_test_user(test_app):
     response = await test_app.post("/v1/users/", json=user_data)
     assert response.status_code == 201
     return response.json()
+
+
+@pytest.fixture(scope="session")
+async def create_test_wallet(test_app, create_test_user):
+    user = create_test_user
+    wallet_data = {
+        "user_id": user["id"],
+        "currency": "COP",
+        "balance": 100.0,
+    }
+    response = await test_app.post("/v1/wallets/", json=wallet_data)
+    assert response.status_code == 201
+    return response.json()

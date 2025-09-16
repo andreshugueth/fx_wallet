@@ -2,32 +2,27 @@ import pytest
 
 pytestmark = pytest.mark.anyio
 
-async def test_fund_wallet_success(test_app):
-    user_id = "user123" # assuming we have a user with this ID
-    payload = {"currency": "USD", "amount": 1000.0}
-    response = await test_app.post(f"/wallets/{user_id}/fund", json=payload)
+async def test_fund_wallet_success(test_app, create_test_user, create_test_wallet):
+    payload = {"currency": "COP", "amount": 1000.0}
+    response = await test_app.post(f"/v1/wallets/{create_test_user['id']}/fund", json=payload)
     assert response.status_code == 200
-    data = response.json()
-    assert data["user_id"] == user_id
-    assert data["balances"]["USD"] == 1000.0
+    assert response.json()["user_id"] == create_test_user["id"]
+    assert response.json()["balance"] == 1100.0
 
 
-async def test_fund_wallet_invalid_currency(test_app):
-    user_id = "user123"
-    payload = {"currency": "INVALID", "amount": 1000.0}
-    response = await test_app.post(f"/wallets/{user_id}/fund", json=payload)
+
+async def test_fund_wallet_invalid_currency(test_app, create_test_user, create_test_wallet):
+    response = await test_app.post(f"/v1/wallets/{create_test_user['id']}/fund", json={"currency": "INVALID", "amount": 1000.0})
+    assert response.status_code == 422
+
+
+async def test_fund_wallet_negative_amount(test_app, create_test_user, create_test_wallet):
+    payload = {"currency": "COP", "amount": -50.0}
+    response = await test_app.post(f"/v1/wallets/{create_test_user['id']}/fund", json=payload)
     assert response.status_code == 400
 
 
-async def test_fund_wallet_negative_amount(test_app):
-    user_id = "user123"
-    payload = {"currency": "USD", "amount": -50.0}
-    response = await test_app.post(f"/wallets/{user_id}/fund", json=payload)
-    assert response.status_code == 400
-
-
-async def test_fund_wallet_missing_fields(test_app):
-    user_id = "user123"
-    payload = {"currency": "USD"}  # missing amount
-    response = await test_app.post(f"/wallets/{user_id}/fund", json=payload)
-    assert response.status_code == 422  # Unprocessable Entity (validation error) by pydantic
+async def test_fund_wallet_missing_fields(test_app, create_test_user, create_test_wallet):
+    payload = {"currency": "COP"}  # missing amount
+    response = await test_app.post(f"/v1/wallets/{create_test_user['id']}/fund", json=payload)
+    assert response.status_code == 422
